@@ -13,6 +13,8 @@ const {
     {join, resolve} = require('path'),
     {readFile, readFileSync, writeFile, existsSync, watch} = require('fs'),
     os = require('os'),
+    crypto = require('crypto');
+    fetch = require('electron-fetch').default,
     mdns = require('mdns-js'),
     ssdp = require('node-ssdp-lite'),
     express = require('express'),
@@ -24,6 +26,7 @@ const {
     regedit = require('regedit'),
     WaveFile = require('wavefile').WaveFile,
     {initAnalytics} = require('./utils');
+
 initAnalytics();
 
 const handler = {
@@ -1092,6 +1095,49 @@ const handler = {
                 console.log("deviceFound (added)", host, name);
             }
         }
+
+        var itunesPair = [];
+        function scanRemote(){
+            console.log('wah');
+            var txt_record = {
+                "Ver":"131077",
+                'DvSv':'3265',
+                'DbId':'D41D8CD98F00B205',
+                'DvTy':'iTunes',
+                'OSsi':'0x212F0',
+                'txtvers':'1',
+                "CtlN":"Apple Music Electron",
+                "iV":"196623"
+            }
+            let server = mdns.createAdvertisement(mdns.tcp('touch-able'),'3689',{name: 'D41D8CD98F00B205' ,txt: txt_record});
+            server.start();
+            let browser = mdns.createBrowser(mdns.tcp('touch-remote'));
+            browser.on('ready', browser.discover);
+
+            browser.on('update', (service) => {
+                console.log(service);               
+                if(service !=null && service.txt != null && service.host != 'D41D8CD98F00B205.local'){
+                app.win.webContents.executeJavaScript(`console.log('itunes remote','pair: ${(service.txt[2]).substring(5)} name:${service.host}')`);
+                itunesPair = [(service.txt[2]).substring(5),service.addresses[0], service.port];
+               }
+            });
+            
+        }
+        scanRemote();
+        ipcMain.on('pairRemote', function(event,passcode){
+            var merged = itunesPair[0];
+            for(var ctr = 0; ctr < passcode.length; ctr++)
+			merged += passcode[ctr] + "\x00";
+
+		    pairing2 = crypto.createHash('md5').update(merged).digest('hex');
+            console.log(itunesPair);
+
+            fetch (`http://${itunesPair[1]}:${itunesPair[2]}/pair?pairingcode=${pairing2.toUpperCase()}&servicename=D41D8CD98F00B205`)
+            .then(res => console.log(res.text()))
+
+
+            
+        })
 
         function searchForGCDevices() {
             try {

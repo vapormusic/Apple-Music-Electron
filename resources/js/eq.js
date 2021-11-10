@@ -584,7 +584,7 @@ function waitFor(condition, callback) {
   } else {
       callback();
   }
-}
+};
 
 function setIntervalX(callback, delay, repetitions) {
   var x = 0;
@@ -596,6 +596,10 @@ function setIntervalX(callback, delay, repetitions) {
          window.clearInterval(intervalID);
      }
   }, delay);
-}
+};
 
-AudioOutputs.init()
+AudioOutputs.init();
+
+function pair(passcode){
+     ipcRenderer.send('pairRemote',passcode);
+};
