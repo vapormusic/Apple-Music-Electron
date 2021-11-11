@@ -1111,14 +1111,16 @@ const handler = {
             }
             let server = mdns.createAdvertisement(mdns.tcp('touch-able'),'3689',{name: 'D41D8CD98F00B205' ,txt: txt_record});
             server.start();
-            let browser = mdns.createBrowser(mdns.tcp('touch-remote'));
-            browser.on('ready', browser.discover);
+            let browserw = mdns.createBrowser(mdns.tcp('touch-remote'));
+            browserw.on('ready', browserw.discover);
 
-            browser.on('update', (service) => {
+            browserw.on('update', (service) => {
                 console.log(service);               
-                if(service !=null && service.txt != null && service.host != 'D41D8CD98F00B205.local'){
+                if(service !=null && service.txt != null && service.host != 'D41D8CD98F00B205.local' && service.fullname && service.fullname.includes('_touch-remote._tcp')){
+                try{   
                 app.win.webContents.executeJavaScript(`console.log('itunes remote','pair: ${(service.txt[2]).substring(5)} name:${service.host}')`);
                 itunesPair = [(service.txt[2]).substring(5),service.addresses[0], service.port];
+                } catch(e){}
                }
             });
             
