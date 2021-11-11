@@ -1096,8 +1096,42 @@ const handler = {
         function scanRemote() {
             let remote = mdns.tcp('touch-remote')
             let ameServer = mdns.tcp('touch-able')
+            let serverPort = 3689
+            let dacpServer = express()
+            dacpServer.set('port', serverPort)
+            dacpServer.get('/server-info', (req, res) => {
+                //http://daap.sourceforge.net/docs/server-info.html
+                let serverInfoTxt = {
+                    "msrv": {
+                        "mstt": "200",
+                        "mpro": "1.0",
+                        "apro": "1.0",
+                        "minm": "Apple Music Electron",
+                        "mslr": "0",
+                        "mstm": "1800",
+                        "msal": "0",
+                        "msup": "0",
+                        "mspi": "0",
+                        "msex": "0",
+                        "msbr": "0",
+                        "msqr": "0",
+                        "msrs": "0",
+                        "msix": "0",
+                        "msdc": "1",
+                    }
+                }
+                res.set({
+                    'Date': new Date().toString(),
+                    'Content-Type': 'application/x-dmap-tagged',
+                    'DAAP-Server': 'daap.js/0.0'
+                })
+                console.log('/server-info requested')
+                res.send(serverInfoTxt)
+            })
 
-            console.log('[DACP] Searching...');
+
+
+            console.log('[DACP] Ready! Scanning For Devices');
             var txt_record = {
                 "Ver": "131077",
                 'DvSv': '3265',
@@ -1108,7 +1142,7 @@ const handler = {
                 "CtlN": "Apple Music Electron",
                 "iV": "196623"
             }
-            let server = mdns.createAdvertisement(ameServer, '3689', { name: 'D41D8CD98F00B205', txt: txt_record });
+            let server = mdns.createAdvertisement(ameServer, String(serverPort), { name: 'D41D8CD98F00B205', txt: txt_record });
             server.start();
             let browser = mdns.createBrowser(remote);
             browser.on('ready', browser.discover);
