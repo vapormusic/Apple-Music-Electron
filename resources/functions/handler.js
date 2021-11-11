@@ -1,31 +1,27 @@
 const {
-        app,
-        Menu,
-        ipcMain,
-        shell,
-        dialog,
-        Notification,
-        BrowserWindow,
-        systemPreferences,
-        nativeTheme,
-        clipboard
-    } = require('electron'),
-    {join, resolve} = require('path'),
-    {readFile, readFileSync, writeFile, existsSync, watch} = require('fs'),
+    app,
+    Menu,
+    ipcMain,
+    shell,
+    dialog,
+    Notification,
+    BrowserWindow,
+    systemPreferences,
+    nativeTheme,
+    clipboard
+} = require('electron'), { join, resolve } = require('path'), { readFile, readFileSync, writeFile, existsSync, watch } = require('fs'),
     os = require('os'),
     crypto = require('crypto');
-    fetch = require('electron-fetch').default,
+fetch = require('electron-fetch').default,
     mdns = require('mdns-js'),
     ssdp = require('node-ssdp-lite'),
     express = require('express'),
     audioClient = require('castv2-client').Client,
     MediaRendererClient = require('upnp-mediarenderer-client'),
     DefaultMediaReceiver = require('castv2-client').DefaultMediaReceiver,
-    getPort = require('get-port'),
-    {Stream} = require('stream'),
+    getPort = require('get-port'), { Stream } = require('stream'),
     regedit = require('regedit'),
-    WaveFile = require('wavefile').WaveFile,
-    {initAnalytics} = require('./utils');
+    WaveFile = require('wavefile').WaveFile, { initAnalytics } = require('./utils');
 
 initAnalytics();
 
@@ -122,7 +118,7 @@ const handler = {
     WindowStateHandler: () => {
         console.verbose('[WindowStateHandler] Started.');
 
-        app.win.webContents.setWindowOpenHandler(({url}) => {
+        app.win.webContents.setWindowOpenHandler(({ url }) => {
             shell.openExternal(url).then(() => console.log(`[WindowStateHandler] User has opened ${url} which has been redirected to browser.`));
             return {
                 action: 'deny'
@@ -187,7 +183,7 @@ const handler = {
                 title: 'Do you want to try forcefully reloading the app?',
                 buttons: ['Yes', 'Quit', 'No'],
                 cancelId: 1
-            }).then(({response}) => {
+            }).then(({ response }) => {
                 if (response === 0) {
                     app.win.contents.forcefullyCrashRenderer()
                     app.win.contents.reload()
@@ -298,7 +294,7 @@ const handler = {
                     message: "A relaunch is required in order for the settings you have changed to apply.",
                     type: "warning",
                     buttons: ['Relaunch Now', 'Relaunch Later']
-                }).then(({response}) => {
+                }).then(({ response }) => {
                     if (response === 0) {
                         app.relaunch()
                         app.quit()
@@ -439,7 +435,7 @@ const handler = {
 
         // Copy Log File
         ipcMain.on('copyLogFile', (event) => {
-            const data = readFileSync(app.log.transports.file.getFile().path, {encoding: 'utf8', flag: 'r'});
+            const data = readFileSync(app.log.transports.file.getFile().path, { encoding: 'utf8', flag: 'r' });
             clipboard.writeText(data)
             event.returnValue = true
         });
@@ -532,22 +528,22 @@ const handler = {
 
         ipcMain.on("show-miniplayer-menu", () => {
             const menuOptions = [{
-                type: "checkbox",
-                label: "Always On Top",
-                click: () => {
-                    if (app.win.isAlwaysOnTop()) {
-                        app.win.setAlwaysOnTop(false, 'screen')
-                    } else {
-                        app.win.setAlwaysOnTop(true, 'screen')
+                    type: "checkbox",
+                    label: "Always On Top",
+                    click: () => {
+                        if (app.win.isAlwaysOnTop()) {
+                            app.win.setAlwaysOnTop(false, 'screen')
+                        } else {
+                            app.win.setAlwaysOnTop(true, 'screen')
+                        }
+                    },
+                    checked: app.win.isAlwaysOnTop()
+                }, {
+                    label: "Exit Mini Player",
+                    click: () => {
+                        ipcMain.emit("set-miniplayer", false)
                     }
                 },
-                checked: app.win.isAlwaysOnTop()
-            }, {
-                label: "Exit Mini Player",
-                click: () => {
-                    ipcMain.emit("set-miniplayer", false)
-                }
-            },
 
             ]
             const menu = Menu.buildFromTemplate(menuOptions)
@@ -678,7 +674,7 @@ const handler = {
         });
 
 
-        ipcMain.on('YTTranslation', function (event, track, artist, lang) {
+        ipcMain.on('YTTranslation', function(event, track, artist, lang) {
             try {
                 if (app.lyrics.ytWin == null) {
                     app.lyrics.ytWin = new BrowserWindow({
@@ -712,7 +708,7 @@ const handler = {
             }
         });
 
-        ipcMain.on('MXMTranslation', function (event, track, artist, lang, time) {
+        ipcMain.on('MXMTranslation', function(event, track, artist, lang, time) {
             try {
                 if (app.lyrics.mxmWin == null) {
                     app.lyrics.mxmWin = new BrowserWindow({
@@ -751,7 +747,7 @@ const handler = {
                 console.error(e)
             }
         });
-        ipcMain.on('NetEaseLyricsHandler', function (event, data) {
+        ipcMain.on('NetEaseLyricsHandler', function(event, data) {
             try {
                 if (app.lyrics.neteaseWin == null) {
                     app.lyrics.neteaseWin = new BrowserWindow({
@@ -786,7 +782,7 @@ const handler = {
             }
         });
 
-        ipcMain.on('LyricsHandler', function (event, data, artworkURL) {
+        ipcMain.on('LyricsHandler', function(event, data, artworkURL) {
 
             app.win.send('truelyrics', data);
             app.win.send('albumart', artworkURL);
@@ -794,28 +790,28 @@ const handler = {
             app.lyrics.albumart = artworkURL;
         });
 
-        ipcMain.on('updateMiniPlayerArt', function (event, artworkURL) {
+        ipcMain.on('updateMiniPlayerArt', function(event, artworkURL) {
             app.lyrics.albumart = artworkURL;
 
 
         })
-        ipcMain.on('LyricsHandlerNE', function (event, data) {
+        ipcMain.on('LyricsHandlerNE', function(event, data) {
 
             app.win.send('truelyrics', data);
             app.lyrics.savedLyric = data;
         });
 
-        ipcMain.on('LyricsHandlerTranslation', function (event, data) {
+        ipcMain.on('LyricsHandlerTranslation', function(event, data) {
 
             app.win.send('lyricstranslation', data);
         });
 
-        ipcMain.on('LyricsTimeUpdate', function (event, data) {
+        ipcMain.on('LyricsTimeUpdate', function(event, data) {
 
             app.win.send('ProgressTimeUpdate', data);
         });
 
-        ipcMain.on('LyricsUpdate', function (event, data, artworkURL) {
+        ipcMain.on('LyricsUpdate', function(event, data, artworkURL) {
 
             app.win.send('truelyrics', data);
             app.win.send('albumart', artworkURL);
@@ -823,15 +819,15 @@ const handler = {
             app.lyrics.albumart = artworkURL;
         });
 
-        ipcMain.on('LyricsMXMFailed', function (_event, _data) {
+        ipcMain.on('LyricsMXMFailed', function(_event, _data) {
             app.win.send('backuplyrics', '');
         });
 
-        ipcMain.on('LyricsYTFailed', function (_event, _data) {
+        ipcMain.on('LyricsYTFailed', function(_event, _data) {
             app.win.send('backuplyricsMV', '');
         });
 
-        ipcMain.on('ProgressTimeUpdateFromLyrics', function (event, data) {
+        ipcMain.on('ProgressTimeUpdateFromLyrics', function(event, data) {
             app.win.webContents.executeJavaScript(`MusicKit.getInstance().seekToTime('${data}')`).catch((e) => console.error(e));
         });
 
@@ -839,7 +835,7 @@ const handler = {
     },
 
     AudioHandler: () => {
-        ipcMain.on('muteAudio', function (event, mute) {
+        ipcMain.on('muteAudio', function(event, mute) {
             app.win.webContents.setAudioMuted(mute);
         });
 
@@ -850,14 +846,14 @@ const handler = {
 
             console.log(portAudio.getDevices());
 
-            ipcMain.on('getAudioDevices', function (_event) {
+            ipcMain.on('getAudioDevices', function(_event) {
                 for (let id = 0; id < portAudio.getDevices().length; id++) {
                     if (portAudio.getDevices()[id].maxOutputChannels > 0)
                         app.win.webContents.executeJavaScript(`console.log('id:','${id}','${portAudio.getDevices()[id].name}','outputChannels:','${portAudio.getDevices()[id].maxOutputChannels}','preferedSampleRate','${portAudio.getDevices()[id].defaultSampleRate}','nativeFormats','${portAudio.getDevices()[id].hostAPIName}')`);
                 }
             })
 
-            ipcMain.on('enableExclusiveAudio', function (event, id) {
+            ipcMain.on('enableExclusiveAudio', function(event, id) {
                 ao = new portAudio.AudioIO({
                     outOptions: {
 
@@ -881,7 +877,7 @@ const handler = {
 
             })
 
-            ipcMain.on('disableExclusiveAudio', function (_event, _data) {
+            ipcMain.on('disableExclusiveAudio', function(_event, _data) {
                 if (ao) {
                     ao.quit();
                 }
@@ -908,13 +904,13 @@ const handler = {
                 return result;
             }
 
-            ipcMain.on('changeAudioMode', function (_event, _mode) {
+            ipcMain.on('changeAudioMode', function(_event, _mode) {
                 console.log(portAudio.getHostAPIs());
             });
 
             console.log(portAudio.getHostAPIs());
 
-            ipcMain.on('writePCM', function (event, buffer) {
+            ipcMain.on('writePCM', function(event, buffer) {
                 //     writeFile(join(app.getPath('userData'), 'buffertest5.raw'), Buffer.from(buffer,'binary').slice(44),{flag: 'a+'}, function (err) {
                 //         if (err) throw err;
                 //          console.log('It\'s saved!');
@@ -925,8 +921,8 @@ const handler = {
 
             });
 
-            ipcMain.on('writeChunks', function (event, blob) {
-                writeFile(join(app.getPath('userData'), 'buffertest.raw'), Buffer.from(blob, 'binary'), {flag: 'a+'}, function (err) {
+            ipcMain.on('writeChunks', function(event, blob) {
+                writeFile(join(app.getPath('userData'), 'buffertest.raw'), Buffer.from(blob, 'binary'), { flag: 'a+' }, function(err) {
                     if (err) throw err;
                     console.log('It\'s saved!');
                 });
@@ -960,7 +956,7 @@ const handler = {
             headerSent = false;
             console.log("Device requested: /");
             req.connection.setTimeout(Number.MAX_SAFE_INTEGER);
-            requests.push({req: req, res: res});
+            requests.push({ req: req, res: res });
             const pos = requests.length - 1;
             req.on("close", () => {
                 console.info("CLOSED", requests.length);
@@ -996,7 +992,7 @@ const handler = {
                 'contentFeatures.dlna.org',
                 'DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=01700000000000000000000000000000'
             );
-            requests.push({req: req, res: res});
+            requests.push({ req: req, res: res });
             const pos = requests.length - 1;
             req.on("close", () => {
                 console.info("CLOSED", requests.length);
@@ -1016,7 +1012,7 @@ const handler = {
 
         }
 
-        ipcMain.on('writeOPUS', function (event, buffer) {
+        ipcMain.on('writeOPUS', function(event, buffer) {
 
             const pcm = Buffer.from(buffer, 'binary').slice(44); //stereo, 48k, 16signed in 8bit buffer
 
@@ -1031,40 +1027,39 @@ const handler = {
 
         })
 
-        ipcMain.on('writeWAV', function (event, pcm, extremeAudio) {
-                let pcmData;
-                if (extremeAudio === '24') {
-                    pcmData = Buffer.from(pcm, 'binary').slice(44);
-                    if (!headerSent) {
-                        const header = Buffer.from(pcm, 'binary').slice(0, 44)
-                        header.writeUInt32LE(2147483600, 4)
-                        header.writeUInt32LE(2147483600 + 44 - 8, 40)
-                        GCstream.write(Buffer.concat([header, pcmData]));
-                        headerSent = true;
-                        console.log('done');
-                    } else {
-                        GCstream.write(pcmData);
-                    }
-
+        ipcMain.on('writeWAV', function(event, pcm, extremeAudio) {
+            let pcmData;
+            if (extremeAudio === '24') {
+                pcmData = Buffer.from(pcm, 'binary').slice(44);
+                if (!headerSent) {
+                    const header = Buffer.from(pcm, 'binary').slice(0, 44)
+                    header.writeUInt32LE(2147483600, 4)
+                    header.writeUInt32LE(2147483600 + 44 - 8, 40)
+                    GCstream.write(Buffer.concat([header, pcmData]));
+                    headerSent = true;
+                    console.log('done');
                 } else {
-                    //sample down to 16 (default)
-                    let wav = new WaveFile(Buffer.from(pcm, 'binary'));
-                    wav.toBitDepth("16");
-                    var newpcm = wav.toBuffer();
-                    pcmData = Buffer.from(newpcm, 'binary').slice(44);
-                    if (!headerSent) {
-                        const header = Buffer.from(newpcm, 'binary').slice(0, 44)
-                        header.writeUInt32LE(2147483600, 4)
-                        header.writeUInt32LE(2147483600 + 44 - 8, 40)
-                        GCstream.write(Buffer.concat([header, pcmData]));
-                        headerSent = true;
-                        console.log('done');
-                    } else {
-                        GCstream.write(pcmData);
-                    }
+                    GCstream.write(pcmData);
+                }
+
+            } else {
+                //sample down to 16 (default)
+                let wav = new WaveFile(Buffer.from(pcm, 'binary'));
+                wav.toBitDepth("16");
+                var newpcm = wav.toBuffer();
+                pcmData = Buffer.from(newpcm, 'binary').slice(44);
+                if (!headerSent) {
+                    const header = Buffer.from(newpcm, 'binary').slice(0, 44)
+                    header.writeUInt32LE(2147483600, 4)
+                    header.writeUInt32LE(2147483600 + 44 - 8, 40)
+                    GCstream.write(Buffer.concat([header, pcmData]));
+                    headerSent = true;
+                    console.log('done');
+                } else {
+                    GCstream.write(pcmData);
                 }
             }
-        );
+        });
 
         function getServiceDescription(url, address) {
             const request = require('request');
@@ -1097,46 +1092,54 @@ const handler = {
         }
 
         var itunesPair = [];
-        function scanRemote(){
-            console.log('wah');
+
+        function scanRemote() {
+            let remote = mdns.tcp('touch-remote')
+            let ameServer = mdns.tcp('touch-able')
+
+            console.log('[DACP] Searching...');
             var txt_record = {
-                "Ver":"131077",
-                'DvSv':'3265',
-                'DbId':'D41D8CD98F00B205',
-                'DvTy':'iTunes',
-                'OSsi':'0x212F0',
-                'txtvers':'1',
-                "CtlN":"Apple Music Electron",
-                "iV":"196623"
+                "Ver": "131077",
+                'DvSv': '3265',
+                'DbId': 'D41D8CD98F00B205',
+                'DvTy': 'iTunes',
+                'OSsi': '0x212F0',
+                'txtvers': '1',
+                "CtlN": "Apple Music Electron",
+                "iV": "196623"
             }
-            let server = mdns.createAdvertisement(mdns.tcp('touch-able'),'3689',{name: 'D41D8CD98F00B205' ,txt: txt_record});
+            let server = mdns.createAdvertisement(ameServer, '3689', { name: 'D41D8CD98F00B205', txt: txt_record });
             server.start();
-            let browser = mdns.createBrowser(mdns.tcp('touch-remote'));
+            let browser = mdns.createBrowser(remote);
             browser.on('ready', browser.discover);
 
             browser.on('update', (service) => {
-                console.log(service);               
-                if(service !=null && service.txt != null && service.host != 'D41D8CD98F00B205.local'){
-                app.win.webContents.executeJavaScript(`console.log('itunes remote','pair: ${(service.txt[2]).substring(5)} name:${service.host}')`);
-                itunesPair = [(service.txt[2]).substring(5),service.addresses[0], service.port];
-               }
+                //console.log(service);
+                if (String(service.fullname).includes(remote)) {
+                    app.win.webContents.executeJavaScript(`console.log('[DACP] Device availible to pair','${(service.txt[2]).substring(5)} to ${service.host}')`);
+                    console.log(`[DACP] Found Device ${service.host}`);
+                    itunesPair = [(service.txt[2]).substring(5), service.addresses[0], service.port, service.host];
+                }
             });
-            
+
         }
         scanRemote();
-        ipcMain.on('pairRemote', function(event,passcode){
-            var merged = itunesPair[0];
-            for(var ctr = 0; ctr < passcode.length; ctr++)
-			merged += passcode[ctr] + "\x00";
+        ipcMain.on('pairRemote', function(event, passcode) {
+            console.log(`[DACP] Attempting to handshake ${itunesPair[3]} with PIN ${passcode}`)
 
-		    pairing2 = crypto.createHash('md5').update(merged).digest('hex');
+            var merged = itunesPair[0];
+            for (var ctr = 0; ctr < passcode.length; ctr++)
+                merged += passcode[ctr] + "\x00";
+
+            pairing2 = crypto.createHash('md5').update(merged).digest('hex');
             console.log(itunesPair);
 
-            fetch (`http://${itunesPair[1]}:${itunesPair[2]}/pair?pairingcode=${pairing2.toUpperCase()}&servicename=D41D8CD98F00B205`)
-            .then(res => console.log(res.text()))
+            fetch(`http://${itunesPair[1]}:${itunesPair[2]}/pair?pairingcode=${pairing2.toUpperCase()}&servicename=D41D8CD98F00B205`)
+                .then(res => console.log(res.text()))
+            app.win.webContents.executeJavaScript(`console.log('[DACP] ${itunesPair[3]} paired!')`);
 
 
-            
+
         })
 
         function searchForGCDevices() {
@@ -1147,7 +1150,7 @@ const handler = {
 
                 browser.on('update', (service) => {
                     if (service.addresses && service.fullname) {
-                        ondeviceup(service.addresses[0], service.fullname.substring(0, service.fullname.indexOf("._googlecast")) + " " + (service.type[0].description ?? ""), '', 'googlecast');
+                        ondeviceup(service.addresses[0], service.fullname.substring(0, service.fullname.indexOf("._googlecast")) + " " + (service.type[0].description || ""), '', 'googlecast');
                     }
                 });
 
@@ -1246,11 +1249,12 @@ const handler = {
                     metadata: {
                         type: 0,
                         metadataType: 3,
-                        title: song ?? "",
-                        albumName: album ?? "",
-                        artist: artist ?? "",
+                        title: song || "",
+                        albumName: album || "",
+                        artist: artist || "",
                         images: [
-                            {url: albumart ?? ""}]
+                            { url: albumart || "" }
+                        ]
                     }
                 };
                 // ipcMain.on('setupNewTrack', function (event, song, artist, album, albumart) {
@@ -1388,33 +1392,32 @@ const handler = {
                         }
                     };
 
-                    client.load('http://' + getIp() + ':' + server.address().port + '/a.wav', options, function (err, _result) {
+                    client.load('http://' + getIp() + ':' + server.address().port + '/a.wav', options, function(err, _result) {
                         if (err) throw err;
                         console.log('playing ...');
                     });
 
-                } catch (e) {
-                }
+                } catch (e) {}
             }
         }
 
-        ipcMain.on('getKnownCastDevices', function (event) {
+        ipcMain.on('getKnownCastDevices', function(event) {
             event.returnValue = castDevices
         });
 
-        ipcMain.on('performGCCast', function (event, device, song, artist, album, albumart) {
-            setupGCServer().then(function () {
+        ipcMain.on('performGCCast', function(event, device, song, artist, album, albumart) {
+            setupGCServer().then(function() {
                 app.win.webContents.setAudioMuted(true);
                 console.log(device);
                 stream(device, song, artist, album, albumart);
             })
         });
 
-        ipcMain.on('getChromeCastDevices', function (_event, _data) {
+        ipcMain.on('getChromeCastDevices', function(_event, _data) {
             searchForGCDevices();
         });
 
-        ipcMain.on('stopGCast', function (_event) {
+        ipcMain.on('stopGCast', function(_event) {
             app.win.webContents.setAudioMuted(false);
             GCRunning = false;
             expectedConnections = 0;
