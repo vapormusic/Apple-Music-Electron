@@ -20,6 +20,8 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "@hodgepodge-node/server": "^0.4.4",
+    "@hodgepodge-node/util": "^0.4.10",
     "@sentry/electron": "^2.5.4",
     "castv2-client": "github:vapormusic/node-castv2-client",
     "chmodr": "^1.2.0",
@@ -38,6 +40,7 @@
     "mdns-js": "github:bitfocus/node-mdns-js",
     "mpris-service": "^2.1.2",
     "naudiodon": "github:vapormusic/naudiodon",
+    "node-daap": "github:mikenz1000/daap",
     "node-fetch": "^3.1.0",
     "node-ssdp-lite": "^0.2.0",
     "opus-media-recorder": "^0.8.0",

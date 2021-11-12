@@ -11,7 +11,8 @@ const {
     clipboard
 } = require('electron'), { join, resolve } = require('path'), { readFile, readFileSync, writeFile, existsSync, watch } = require('fs'),
     os = require('os'),
-    crypto = require('crypto');
+    crypto = require('crypto'),
+daap = require('./daap');
 fetch = require('electron-fetch').default,
     mdns = require('mdns-js'),
     ssdp = require('node-ssdp-lite'),
@@ -21,7 +22,8 @@ fetch = require('electron-fetch').default,
     DefaultMediaReceiver = require('castv2-client').DefaultMediaReceiver,
     getPort = require('get-port'), { Stream } = require('stream'),
     regedit = require('regedit'),
-    WaveFile = require('wavefile').WaveFile, { initAnalytics } = require('./utils');
+    WaveFile = require('wavefile').WaveFile,
+    { initAnalytics } = require('./utils');
 
 initAnalytics();
 
@@ -1097,36 +1099,43 @@ const handler = {
             let remote = mdns.tcp('touch-remote')
             let ameServer = mdns.tcp('touch-able')
             let serverPort = 3689
-            let dacpServer = express()
-            dacpServer.set('port', serverPort)
+            let dacpServer = express();
+            dacpServer.listen(3689, () => {
+                console.info('itunes remote listening on port at http://%s:%s', getIp(), 3689);
+            });
             dacpServer.get('/server-info', (req, res) => {
+                console.log('yeah')
                 //http://daap.sourceforge.net/docs/server-info.html
-                let serverInfoTxt = {
-                    "msrv": {
-                        "mstt": "200",
-                        "mpro": "1.0",
-                        "apro": "1.0",
-                        "minm": "Apple Music Electron",
-                        "mslr": "0",
-                        "mstm": "1800",
-                        "msal": "0",
-                        "msup": "0",
-                        "mspi": "0",
-                        "msex": "0",
-                        "msbr": "0",
-                        "msqr": "0",
-                        "msrs": "0",
-                        "msix": "0",
-                        "msdc": "1",
-                    }
-                }
+                var data = daap.build({
+                    msrv: [
+                        { mstt: 200 },
+                        { mpro: '2.0.0' },
+                        { apro: '3.0.0' },
+                        { minm: 'Apple Music Electron'},
+                        { mslr: !!false },
+                        { msau: false },
+                        { mstm: 1800 },
+                        { msex: false },
+                        { msix: false },
+                        { msbr: false },
+                        { msqy: false },
+                        { msup: false },
+                        { msrs: false },
+                        { msdc: 1 },
+                        { msal: false },
+                        { mspi: true },
+                        { ated: 0 },
+                    ]
+                });
+                
                 res.set({
                     'Date': new Date().toString(),
                     'Content-Type': 'application/x-dmap-tagged',
                     'DAAP-Server': 'daap.js/0.0'
                 })
+               
+                res.send(data)
                 console.log('/server-info requested')
-                res.send(serverInfoTxt)
             })
 
 
@@ -1134,7 +1143,7 @@ const handler = {
             console.log('[DACP] Ready! Scanning For Devices');
             var txt_record = {
                 "Ver": "131077",
-                'DvSv': '3265',
+                'DvSv': '3690',
                 'DbId': 'D41D8CD98F00B205',
                 'DvTy': 'iTunes',
                 'OSsi': '0x212F0',
@@ -1142,7 +1151,7 @@ const handler = {
                 "CtlN": "Apple Music Electron",
                 "iV": "196623"
             }
-            let server = mdns.createAdvertisement(ameServer, String(serverPort), { name: 'D41D8CD98F00B205', txt: txt_record });
+            let server = mdns.createAdvertisement(ameServer, '3689', { name: 'D41D8CD98F00B205', txt: txt_record });
             server.start();
 
             let browser = mdns.createBrowser(remote);
@@ -1155,7 +1164,7 @@ const handler = {
                     console.log(`[DACP] Found Device ${service.host}`);
                     itunesPair = [(service.txt[2]).substring(5), service.addresses[0], service.port, service.host];
                 }
-
+              
             });
 
         }
@@ -1173,7 +1182,7 @@ const handler = {
             fetch(`http://${itunesPair[1]}:${itunesPair[2]}/pair?pairingcode=${pairing2.toUpperCase()}&servicename=D41D8CD98F00B205`)
                 .then(res => console.log(res.text()))
             app.win.webContents.executeJavaScript(`console.log('[DACP] ${itunesPair[3]} paired!')`);
-
+       
 
 
         })
