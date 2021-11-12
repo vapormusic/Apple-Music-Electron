@@ -1144,6 +1144,7 @@ const handler = {
             }
             let server = mdns.createAdvertisement(ameServer, String(serverPort), { name: 'D41D8CD98F00B205', txt: txt_record });
             server.start();
+
             let browser = mdns.createBrowser(remote);
             browser.on('ready', browser.discover);
 
@@ -1154,6 +1155,7 @@ const handler = {
                     console.log(`[DACP] Found Device ${service.host}`);
                     itunesPair = [(service.txt[2]).substring(5), service.addresses[0], service.port, service.host];
                 }
+
             });
 
         }
