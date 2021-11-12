@@ -1104,7 +1104,7 @@ const handler = {
                 console.info('itunes remote listening on port at http://%s:%s', getIp(), 3689);
             });
             dacpServer.get('/server-info', (req, res) => {
-                console.log('yeah')
+                console.log('[DACP] sent server info')
                 //http://daap.sourceforge.net/docs/server-info.html
                 var data = daap.build({
                     msrv: [
@@ -1135,10 +1135,25 @@ const handler = {
                 })
                
                 res.send(data)
-                console.log('/server-info requested')
             })
 
-
+           dacpServer.get('/login', (req, res) => {
+            console.log('[DACP] accept login')
+            //http://daap.sourceforge.net/docs/server-info.html
+            var data = daap.build({
+                mlog: [
+                    { mstt: 200 },
+                    { mlid: 69420 }
+                ]});
+            
+            res.set({
+                'Date': new Date().toString(),
+                'Content-Type': 'application/x-dmap-tagged',
+                'DAAP-Server': 'daap.js/0.0'
+            })
+           
+            res.send(data)
+           })
 
             console.log('[DACP] Ready! Scanning For Devices');
             var txt_record = {

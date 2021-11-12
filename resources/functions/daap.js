@@ -190,7 +190,7 @@ function byte(n) {
     n = +n
     n = Math.min(max.byte1, Math.max(0, n))
     buf.writeUInt8(n, 0)
-
+    
     return buf
 }
 
