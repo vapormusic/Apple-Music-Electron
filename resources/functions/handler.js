@@ -1114,13 +1114,13 @@ const handler = {
                         { minm: 'Apple Music Electron'},
                         { mslr: !!false },
                         { msau: false },
-                        { mstm: 1800 },
+                        { mstm: 3000 },
                         { msex: false },
-                        { msix: false },
-                        { msbr: false },
-                        { msqy: false },
-                        { msup: false },
-                        { msrs: false },
+                        { msix: true },
+                        { msbr: true },
+                        { msqy: true},
+                        { msup: true },
+                        { msrs: true },
                         { msdc: 1 },
                         { msal: false },
                         { mspi: true },
@@ -1151,9 +1151,55 @@ const handler = {
                 'Content-Type': 'application/x-dmap-tagged',
                 'DAAP-Server': 'daap.js/0.0'
             })
+            res.send(data) 
+            })
+
+            dacpServer.get('/ctrl-int', (req, res) => {
+                console.log('[DACP] ctrlintresponse')
+                //http://daap.sourceforge.net/docs/server-info.html
+                var data = daap.build({
+                    caci: [
+                        { mstt: 200 },
+                        { muty: 0 },
+                        { mtco : 1},
+                        { mrco : 1 },
+                        { mlcl : [
+                            {miid : 1},
+                            {cmik : 1},
+                            {cmsp : 1},
+                            {cmsv : 1},
+                            {cass : 1},
+                            {casu : 1},
+                            {caSG : 1},
+                        ]}
+                    ]});
+                
+                res.set({
+                    'Date': new Date().toString(),
+                    'Content-Type': 'application/x-dmap-tagged',
+                    'DAAP-Server': 'daap.js/0.0'
+            })
            
             res.send(data)
            })
+
+           dacpServer.get('/update', (req, res) => {
+            console.log('[DACP] accept update')
+            //http://daap.sourceforge.net/docs/server-info.html
+            var data = daap.build({
+                mupd: [
+                    { mstt: 200 },
+                    { musr: 1}
+                ]});
+            
+            res.set({
+                'Date': new Date().toString(),
+                'Content-Type': 'application/x-dmap-tagged',
+                'DAAP-Server': 'daap.js/0.0'
+            })
+            res.send(data) 
+            })
+
 
             console.log('[DACP] Ready! Scanning For Devices');
             var txt_record = {

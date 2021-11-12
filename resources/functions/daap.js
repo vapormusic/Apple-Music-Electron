@@ -116,6 +116,7 @@ var tag2info = {
     ashp: { desc: 'daap.songhasbeenplayed',               type: 1  },
     assn: { desc: 'daap.sortname',                        type: 9  },
     assa: { desc: 'daap.sortartist',                      type: 9  },
+    asse: { desc: 'daap.sortartist',                      type: 9  },
     assl: { desc: 'daap.sortalbumartist',                 type: 9  },
     assu: { desc: 'daap.sortalbum',                       type: 9  },
     assc: { desc: 'daap.sortcomposer',                    type: 9  },
@@ -126,7 +127,14 @@ var tag2info = {
     asai: { desc: 'daap.songalbumid',                     type: 7  },
     asls: { desc: 'daap.songlongsize',                    type: 7  },
     asaa: { desc: 'daap.songalbumartist',                 type: 9  },
-    aeSP: { desc: 'com.apple.itunes.smart-playlist',      type: 1  }
+    aeSP: { desc: 'com.apple.itunes.smart-playlist',      type: 1  },
+    caci: { desc: 'daap.controlint',                      type: 12 },
+    cmik: { desc: 'dmcp.ik' ,                             type: 1  },
+    cmsp: { desc: 'dmcp.sp',                              type: 1  },
+    cmsv: { desc: 'dmcp.sv',                              type: 1  },
+    cass: { desc: 'dacp.ss',                              type: 1  },
+    casu: { desc: 'dacp.su',                              type: 1  },
+    caSG: { desc: 'dacp.sg',                              type: 1  },
 }, desc2tag = {}
 
 var max = {
