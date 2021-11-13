@@ -44,8 +44,8 @@ var tag2info = {
     msrs: { desc: 'dmap.supportsresolve',                 type: 1  },
     mstm: { desc: 'dmap.timeoutinterval',                 type: 5  },
     msdc: { desc: 'dmap.databasescount',                  type: 5  },
-    mstc: { desc: 'dmap.utctime',                         type: 10 },
-    msto: { desc: 'dmap.utcoffset',                       type: 6  },
+    mstc: { desc: 'dmap.utctime',                         type: 5  },
+    msto: { desc: 'dmap.utcoffset',                       type: 5  },
     mlog: { desc: 'dmap.loginresponse',                   type: 12 },
     mlid: { desc: 'dmap.sessionid',                       type: 5  },
     mupd: { desc: 'dmap.updateresponse',                  type: 12 },
@@ -134,7 +134,24 @@ var tag2info = {
     cmsv: { desc: 'dmcp.sv',                              type: 1  },
     cass: { desc: 'dacp.ss',                              type: 1  },
     casu: { desc: 'dacp.su',                              type: 1  },
-    caSG: { desc: 'dacp.sg',                              type: 1  },
+    ceSG: { desc: 'dacp.sg',                              type: 1  },
+    aeSV: { desc: 'com.apple.itunes.music-sharing-version',type : 11 },
+    asgr: { desc: 'daap.supportsgroups',                  type: 3  } ,
+    asse: { desc: '',                                     type: 7  },
+    aeMQ: { desc: '',                                     type: 1  },
+    aeFR: { desc: '',                                     type: 1  },
+    aeTr: { desc: '',                                     type: 1  },
+    aeSL: { desc: '',                                     type: 1  },
+    aeFP: { desc: '',                                     type: 1  },
+    aeSR: { desc: '',                                     type: 1  },
+    ceVO: { desc: 'com.apple.itunes..voting-enabled',     type: 1  }, 
+    msed: { desc: 'dmap.supportsedit',                    type: 1  },     
+    msml: { desc: 'dmap.msml',                            type: 12  },
+    msma: { desc:  'dmap.speakermachineaddress',          type: 7 },
+    caov: { desc: '',                                     type: 1  },
+    cmrl: { desc: '',                                     type: 1  },
+    cmpr: { desc: '',                                     type: 5  },
+    capr: { desc: '',                                     type: 5  },
 }, desc2tag = {}
 
 var max = {
@@ -266,7 +283,7 @@ function buffer(obj) {
     var top, nested
 
     if (!tag2info[key]) throw new Error('unknown key: '+key)
-
+    console.log(tag2info[key])
     switch(tag2info[key].type) {
         case 1:    // char
             chktype(key, val, 'byte')

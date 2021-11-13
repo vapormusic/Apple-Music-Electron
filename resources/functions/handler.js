@@ -1106,25 +1106,42 @@ const handler = {
             dacpServer.get('/server-info', (req, res) => {
                 console.log('[DACP] sent server info')
                 //http://daap.sourceforge.net/docs/server-info.html
+			    console.log( Math.round((new Date()).getTime() / 1000))
                 var data = daap.build({
                     msrv: [
                         { mstt: 200 },
                         { mpro: '2.0.0' },
                         { apro: '3.0.0' },
-                        { minm: 'Apple Music Electron'},
-                        { mslr: !!false },
-                        { msau: false },
-                        { mstm: 3000 },
+                        { aeSV: '3.0.0'},
+                        { ated:  3},
+                        { asgr : 0},
+                     //   { asse : 0x8000},                       
+                        { aeMQ : true },
+                        { aeFR : 64 },
+                        { aeTr : true },
+                        { aeSL : true },
+                        { aeSR : true },
+                        { ceVO : true },  
+                        { msed : true },                                       
+                        { msml : [
+                           {msma : 109258886650580},
+                           {msma : 252047439993556},
+                        ]},
+                        { minm : 'Apple Music Electron'}, 
+                        { mslr: false },
+                        { mstm: 1800 },
+                        { msal: false },
+                        { msas: 3 },
+                        { msup: true },
+                        { mspi: true },
                         { msex: false },
-                        { msix: true },
                         { msbr: true },
                         { msqy: true},
-                        { msup: true },
+                        { msix: true },
                         { msrs: true },
                         { msdc: 1 },
-                        { msal: false },
-                        { mspi: true },
-                        { ated: 0 },
+                        { mstc: Math.round((new Date()).getTime() / 1000)},
+                        { msto:  (new Date().getTimezoneOffset()) * 60  },
                     ]
                 });
                 
@@ -1164,14 +1181,20 @@ const handler = {
                         { mtco : 1},
                         { mrco : 1 },
                         { mlcl : [
+                            {mlit:[
                             {miid : 1},
                             {cmik : 1},
-                            {cmsp : 1},
-                            {cmsv : 1},
-                            {cass : 1},
-                            {casu : 1},
-                            {caSG : 1},
-                        ]}
+                            {cmpr : 0x00020001},
+                            {capr : 0x00020003},
+                            {cmsp : true},      // show speakers selector (if needed)
+                            {aeFR : 64},
+                            {cmsv : true},
+                            {caov : true},
+                            {cass : true},
+                            {casu : true},
+                            {ceSG : true},
+                            {cmrl : true}    
+                        ]}]}
                     ]});
                 
                 res.set({
@@ -1199,12 +1222,49 @@ const handler = {
             })
             res.send(data) 
             })
-
+            dacpServer.get('/ctrl-int/1/playstatusupdate', (req, res) => {
+                console.log('[DACP] accept update')
+                //http://daap.sourceforge.net/docs/server-info.html
+                /// cmst --+
+                    ///     mstt 4 000000c8 == 200
+                    ///     cmsr 4 00000006 == 6 # revision-number
+                    ///     caps 1 04 == 4 # play status: 4=playing, 3=paused, 2=stopped
+                    ///     cash 1 01 == 1 # shuffle status: 0=off, 1=on
+                    ///     carp 1 00 == 0 # repeat status: 0=none, 1=single, 2=all
+                    ///     cavc 1 01 == 1 # volume controllable: 0=false, 1=true
+                    ///     caas 4 00000002 == 2 # available shuffle states, only seen '2'
+                    ///     caar 4 00000006 == 6 # available repeat states, only seen '6'
+                    ///     canp 16 00000026000052200000530200000f68 #4 ids: dbid, plid, playlistItem, itemid
+                    ///     cann 13 Secret Crowds # track
+                    ///     cana 17 Angels & Airwaves # artist
+                    ///     canl 8 I-Empire # album
+                    ///     cang 0 # genre
+                    ///     asai 8 a0d34e8b82616ae8 == 11588692627249261288 # album-id
+                    ///     cmmk 4 00000001 == 1 # MediaKind (1 = song)
+                    ///     cant 4 0003a15f == 237919 # remaining track time in ms
+                    ///     cast 4 0004a287 == 303751 # total track length in ms
+                    ///     cavs 1 01 == 1 # visualizer controllable: 0=false, 1=true
+                    ///     cafs 1 01 == 1 # fullscreen controllable: 0=false, 1=true
+                    ///     ceGS 1 01 == 1 # genius selectable: 0=false, 1=true
+                var data = daap.build({
+                    mupd: [
+                        { mstt: 200 },
+                        { musr: 1}
+                    ]});
+                
+                res.set({
+                    'Date': new Date().toString(),
+                    'Content-Type': 'application/x-dmap-tagged',
+                    'DAAP-Server': 'daap.js/0.0'
+                })
+                res.send(data) 
+                })
+            
 
             console.log('[DACP] Ready! Scanning For Devices');
             var txt_record = {
                 "Ver": "131077",
-                'DvSv': '3690',
+                'DvSv': '3689',
                 'DbId': 'D41D8CD98F00B205',
                 'DvTy': 'iTunes',
                 'OSsi': '0x212F0',
@@ -1221,9 +1281,19 @@ const handler = {
             browser.on('update', (service) => {
                 //console.log(service);
                 if (String(service.fullname).includes(remote)) {
-                    app.win.webContents.executeJavaScript(`console.log('[DACP] Device availible to pair','${(service.txt[2]).substring(5)} to ${service.host}')`);
+                    // find Pair txt record
+                    var pair  = ''; 
+                    for( var record of service.txt){
+                        console.log(record);
+                        if (record.startsWith('Pair')) {
+                            pair = record.substring(5);
+                            break;
+                        }
+                    }
+                    app.win.webContents.executeJavaScript(`console.log('[DACP] Device availible to pair','${(pair)} to ${service.host}')`);
                     console.log(`[DACP] Found Device ${service.host}`);
-                    itunesPair = [(service.txt[2]).substring(5), service.addresses[0], service.port, service.host];
+                    console.log(`[DACP] `, service )
+                    itunesPair = [pair, service.addresses[0], service.port, service.host];
                 }
               
             });
