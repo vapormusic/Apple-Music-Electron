@@ -152,7 +152,25 @@ var tag2info = {
     cmrl: { desc: '',                                     type: 1  },
     cmpr: { desc: '',                                     type: 5  },
     capr: { desc: '',                                     type: 5  },
-}, desc2tag = {}
+    cmst: { desc: 'dmcp.musicstatus',                     type: 12  },
+    cmst: { desc: 'dmcp.musicstatus',                     type: 12  },
+    cmsr: { desc: 'dmcp.statusrevision',                  type: 5  },
+    caps: { desc: 'dmcp.playingstatus',                   type: 1   },
+    cash: { desc: 'dmcp.shuffle',                         type: 1   },
+    carp: { desc: 'dmcp.repeatstatus' ,                   type: 1   },
+    cavc: { desc: 'dmcp.volumecontrol',                   type: 1   },
+    cafs: { desc: 'dmcp.repeatstatus' ,                   type: 1   },
+    cavs: { desc: 'dmcp.volumecontrol',                   type: 1   },
+    caas: { desc: '    ' ,                   type: 5  },
+    caar: { desc: ' ',                   type: 5   },
+    casp: { desc: ' ',                   type: 12   },
+    cmgt: { desc: ' ',                   type: 12   },
+    caia: { desc: ' ',                   type: 1  },
+    cmvo: { desc: ' ',                   type: 5  },
+    cave: { desc: ' ',                   type: 1  },
+    cafe: { desc: ' ',                   type: 1  },
+    ceQu: { desc: ' ',                   type: 1  },
+}, desc2tag = {} 
 
 var max = {
     byte1: Math.pow(2, 8)-1,

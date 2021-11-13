@@ -1186,10 +1186,10 @@ const handler = {
                             {cmik : 1},
                             {cmpr : 0x00020001},
                             {capr : 0x00020003},
-                            {cmsp : true},      // show speakers selector (if needed)
+                            {cmsp : false},      // show speakers selector (if needed)
                             {aeFR : 64},
                             {cmsv : true},
-                            {caov : true},
+                            {caov : false},
                             {cass : true},
                             {casu : true},
                             {ceSG : true},
@@ -1222,8 +1222,47 @@ const handler = {
             })
             res.send(data) 
             })
+
+            dacpServer.get('/ctrl-int/1/getspeakers', (req, res) => {
+                console.log('[DACP] getspeaker')
+                //http://daap.sourceforge.net/docs/server-info.html
+                var data = daap.build({
+                    casp: [
+                        { mstt: 200 },
+                        { mdcl : [
+                            { minm : 'Computer'},
+                            { msma : 0},
+                            { caia : true},
+                            { cmvo : 100}
+                        ]}
+                    ]});
+                
+                res.set({
+                    'Date': new Date().toString(),
+                    'Content-Type': 'application/x-dmap-tagged',
+                    'DAAP-Server': 'daap.js/0.0'
+                })
+                res.send(data) 
+            })
+            dacpServer.get('/ctrl-int/1/getproperty', (req, res) => {
+                console.log('[DACP] property')
+         
+                var data = daap.build({
+                    cmgt: [
+                        { mstt: 200 },
+                        { cmvo: 100}
+                    ]});
+                
+                res.set({
+                    'Date': new Date().toString(),
+                    'Content-Type': 'application/x-dmap-tagged',
+                    'DAAP-Server': 'daap.js/0.0'
+                })
+                res.send(data) 
+                })
+            
             dacpServer.get('/ctrl-int/1/playstatusupdate', (req, res) => {
-                console.log('[DACP] accept update')
+                console.log('[DACP] playstatusupdate')
                 //http://daap.sourceforge.net/docs/server-info.html
                 /// cmst --+
                     ///     mstt 4 000000c8 == 200
@@ -1247,9 +1286,23 @@ const handler = {
                     ///     cafs 1 01 == 1 # fullscreen controllable: 0=false, 1=true
                     ///     ceGS 1 01 == 1 # genius selectable: 0=false, 1=true
                 var data = daap.build({
-                    mupd: [
+                    cmst: [
                         { mstt: 200 },
-                        { musr: 1}
+                        { cmsr: 1   },
+                        { caps: 2   },
+                        { cmvo: 100   },
+                        { cash: false   },
+                        { carp: false   },
+                        { cafs: false   },
+                        { cavs: false   },
+                        { cavc: false },
+                        { caas: 2   },
+                        { caar: 6   },
+                        { cafe: true   },
+                        { cave: true   },
+                        { casu: true   },
+                        { ceQu: true   },
+
                     ]});
                 
                 res.set({
