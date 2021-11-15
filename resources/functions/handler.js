@@ -1134,7 +1134,7 @@ const handler = {
                         { msas: 3 },
                         { msup: true },
                         { mspi: true },
-                        { msex: false },
+                        { msex: true },
                         { msbr: true },
                         { msqy: true},
                         { msix: true },
@@ -1193,7 +1193,8 @@ const handler = {
                             {cass : true},
                             {casu : true},
                             {ceSG : true},
-                            {cmrl : true}    
+                            {cmrl : true},
+                            {ceSX : 1}      
                         ]}]}
                     ]});
                 
@@ -1290,18 +1291,17 @@ const handler = {
                         { mstt: 200 },
                         { cmsr: 1   },
                         { caps: 2   },
-                        { cmvo: 100   },
-                        { cash: false   },
-                        { carp: false   },
-                        { cafs: false   },
-                        { cavs: false   },
-                        { cavc: false },
+                        { cash: 0  },
+                        { carp: 0   },
+                        { cafs: 0   },
+                        { cavs: 0  },
+                        { cavc: 1 },
                         { caas: 2   },
                         { caar: 6   },
-                        { cafe: true   },
-                        { cave: true   },
-                        { casu: true   },
-                        { ceQu: true   },
+                        { cafe: 0  },
+                        { cave: 0   },
+                        { casu: 1   },
+                        { ceQu: 0   },
 
                     ]});
                 

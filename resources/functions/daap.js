@@ -153,7 +153,6 @@ var tag2info = {
     cmpr: { desc: '',                                     type: 5  },
     capr: { desc: '',                                     type: 5  },
     cmst: { desc: 'dmcp.musicstatus',                     type: 12  },
-    cmst: { desc: 'dmcp.musicstatus',                     type: 12  },
     cmsr: { desc: 'dmcp.statusrevision',                  type: 5  },
     caps: { desc: 'dmcp.playingstatus',                   type: 1   },
     cash: { desc: 'dmcp.shuffle',                         type: 1   },
@@ -170,6 +169,7 @@ var tag2info = {
     cave: { desc: ' ',                   type: 1  },
     cafe: { desc: ' ',                   type: 1  },
     ceQu: { desc: ' ',                   type: 1  },
+    ceSX: { desc: ' ',                   type: 7  }
 }, desc2tag = {} 
 
 var max = {
